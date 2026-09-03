@@ -3,6 +3,12 @@ const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
 const User = require("../models/User");
 
+// Devuelve el usuario sin el hash de la contraseña.
+const sanitizarUsuario = (user) => {
+  const { password, ...resto } = user.toObject();
+  return resto;
+};
+
 exports.register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -16,7 +22,7 @@ exports.register = async (req, res) => {
       image,
     });
 
-    res.json(user);
+    res.status(201).json(sanitizarUsuario(user));
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -24,7 +30,6 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  console.log(`Intento de login para email: ${email}`);
 
   const user = await User.findOne({ email });
   if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
@@ -35,7 +40,8 @@ exports.login = async (req, res) => {
 
   const token = jwt.sign(
     { id: user._id, role: user.role },
-    process.env.JWT_SECRET
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
   );
 
   res.json({ token });
@@ -46,8 +52,9 @@ exports.changeRole = async (req, res) => {
   const { role } = req.body;
 
   const user = await User.findByIdAndUpdate(id, { role }, { new: true });
+  if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
-  res.json(user);
+  res.json(sanitizarUsuario(user));
 };
 
 exports.deleteUser = async (req, res) => {
@@ -77,16 +84,17 @@ exports.addRelated = async (req, res) => {
   const { itemId } = req.body;
 
   const user = await User.findById(id);
+  if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
   if (!user.relatedData.includes(itemId)) {
     user.relatedData.push(itemId);
   }
 
   await user.save();
-  res.json(user);
+  res.json(sanitizarUsuario(user));
 };
 
 exports.getUsers = async (req, res) => {
-  const users = await User.find();
+  const users = await User.find().select("-password");
   res.json(users);
 };

@@ -16,6 +16,6 @@ router.post("/login", login);
 router.patch("/:id/role", auth, isAdmin, changeRole);
 router.delete("/:id", auth, deleteUser);
 router.patch("/:id/add-related", auth, addRelated);
-router.get("/", getUsers);
+router.get("/", auth, isAdmin, getUsers);
 
 module.exports = router;

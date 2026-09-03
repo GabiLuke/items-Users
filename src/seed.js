@@ -5,6 +5,7 @@ const Item = require("./models/Item");
 mongoose
   .connect(process.env.MONGO_URI)
   .then(async () => {
+    await Item.deleteMany({});
     await Item.insertMany([
       { title: "Item 1", description: "Descripción 1" },
       { title: "Item 2", description: "Descripción 2" },

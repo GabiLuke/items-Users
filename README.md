@@ -1,48 +1,95 @@
-Proyecto Final: API REST de Usuarios y Items (Node.js/Express)
+# 🔐 API REST — Usuarios e Items
 
-Descripción General
+API REST con **Node.js + Express + MongoDB** que implementa autenticación con JWT, control de roles, subida de imágenes a Cloudinary y operaciones CRUD sobre dos recursos relacionados (usuarios ↔ items).
 
-Este proyecto es el trabajo final del módulo de Backend con Node.js y Express. Es una API REST simple que gestiona Usuarios y Elementos genéricos (Items), implementando autenticación (JWT), diferentes roles de usuario, y subida de imágenes a servicios en la nube (Cloudinary).
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=flat&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=jsonwebtokens&logoColor=white)
 
-Se han volcado los conocimientos de Express, Mongoose, middlewares y buenas prácticas de seguridad.
+---
 
-Tecnologías Utilizadas
-Backend: Node.js
-Framework: Express
-Base de Datos: MongoDB (a través de MongoAtlas)
-ORM/ODM: Mongoose
-Autenticación: JSON Web Tokens (JWT) y bcrypt
-Archivos/Imágenes: Multer y Cloudinary
+## ✨ Funcionalidades
 
-Configuración e Instalación
-1. Clona el repositorio: git clone https://github.com/GabiLuke/proyecto3.git
-cd proyecto3
-2. Instala dependencias: npm install
-3. Variables de Entorno
-Crea un archivo llamado .env en la raíz del proyecto y añade las siguientes variables con tus credenciales:
-# Configuración para MongoDB Atlas
-MONGO_URI=
+- 👤 Registro e inicio de sesión con **JWT** (con expiración) y contraseña **hasheada (bcrypt)**
+- 🛡️ Middleware de **autenticación** y de **rol admin**
+- 🖼️ Subida de imagen de perfil a **Cloudinary** (stream en memoria con Multer)
+- 📦 CRUD de items y relación usuario → items
+- 🔒 Las respuestas **nunca exponen el hash** de la contraseña
 
-# Configuración de Cloudinary (¡Ojo con no pisar credenciales!)
-CLOUDINARY_URL=
+---
 
-# Clave para firmar los tokens JWT
-JWT_SECRET=
+## 🛠️ Stack técnico
 
-# Puerto de escucha del servidor
+| Tema | Detalle |
+|------|---------|
+| Runtime | Node.js · Express |
+| Base de datos | MongoDB · Mongoose |
+| Auth | JWT · bcrypt |
+| Media | Cloudinary · Multer |
+
+---
+
+## 🗂️ Estructura
+
+```
+src/
+├── app.js              # Arranque + conexión a MongoDB
+├── controllers/        # Lógica de User e Item
+├── middleware/         # Auth (JWT + isAdmin) y Upload (Cloudinary)
+├── models/             # Esquemas Mongoose
+├── routes/             # Rutas REST
+└── seed.js             # Datos de prueba
+```
+
+---
+
+## 🚀 Puesta en marcha local
+
+```bash
+git clone https://github.com/GabiLuke/items-Users.git
+cd items-Users
+npm install
+```
+
+`.env`
+```env
+MONGO_URI=tu_uri_de_mongodb
+JWT_SECRET=tu_secret
+CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
 PORT=3000
-4. Inicializa la Base de Datos (Seed)
-Para tener datos de prueba en la colección de Items, ejecuta el seeder antes de arrancar el servidor:
-npm run seed
-Cómo Ejecutar el Servidor
-Simplemente ejecuta el comando start: npm start
-El servidor estará corriendo en http://localhost:3000 (o el puerto que hayas definido en .env).
-Endpoints Principales
-/users/register   POST    Crea un nuevo usuario. Requiere username, email, password y image.
-/users/login      POST    Autentica y devuelve el JWT.
-/users            GET     Obtiene la lista de todos los usuarios.
-/users/:id/role   PATCH   Cambia el rol de un usuario.
-/items            POST    Crea un nuevo item.
-/items/:id        DELETE  Elimina un item.
+```
 
-El primer usuario administrador debe crearse manualmente en MongoAtlas.
+```bash
+npm run seed   # opcional: carga items de ejemplo
+npm run dev    # http://localhost:3000
+```
+
+---
+
+## 📡 Endpoints principales
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| `POST` | `/users/register` | — | Registro (con imagen opcional) |
+| `POST` | `/users/login` | — | Login → devuelve JWT |
+| `GET` | `/users` | admin | Listar usuarios (sin contraseñas) |
+| `PATCH` | `/users/:id/role` | admin | Cambiar rol |
+| `DELETE` | `/users/:id` | auth | Eliminar (propietario o admin) |
+| `GET/POST` | `/items` | — | Listar / crear items |
+| `PUT/DELETE` | `/items/:id` | — | Actualizar / eliminar item |
+
+---
+
+## 🎯 Qué demuestra este proyecto
+
+- Diseño de una **API REST** con recursos relacionados y códigos de estado correctos.
+- **Seguridad**: hash de contraseñas, JWT con expiración, control de acceso por rol y no exponer datos sensibles.
+- Integración de subida de ficheros a un servicio externo mediante streams.
+
+---
+
+## 👤 Autor
+
+**Gabriel Luque Velasco** — Desarrollador Full-Stack Junior
+[GitHub](https://github.com/GabiLuke) · [LinkedIn](#) · gabiluke99@gmail.com
